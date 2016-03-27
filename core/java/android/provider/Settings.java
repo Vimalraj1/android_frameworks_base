@@ -3464,8 +3464,13 @@ public final class Settings {
         public static final String GESTURES_LONG_PRESS = "gestures_long_press";
 
         /**
+         * Heads up timeout configuration
+         * @hide
+         */
+        public static final String HEADS_UP_TIMEOUT = "heads_up_timeout";
+
+        /**
          * double tap Action
-         *
          * @hide
          */
         public static final String GESTURES_DOUBLE_TAP = "gestures_double_tap";
