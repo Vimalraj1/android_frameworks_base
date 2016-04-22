@@ -3464,8 +3464,13 @@ public final class Settings {
         public static final String GESTURES_LONG_PRESS = "gestures_long_press";
 
         /**
+         * Heads up timeout configuration
+         * @hide
+         */
+        public static final String HEADS_UP_TIMEOUT = "heads_up_timeout";
+
+        /**
          * double tap Action
-         *
          * @hide
          */
         public static final String GESTURES_DOUBLE_TAP = "gestures_double_tap";
@@ -3739,6 +3744,19 @@ public final class Settings {
         public static final String DOUBLE_TAP_SLEEP_ANYWHERE = "double_tap_sleep_anywhere";
 
 
+
+        /**
+         * Snooze time for heads up
+         *
+         * @hide
+         */
+        public static final String HEADS_UP_SNOOZE_LENGTH_MS = "heads_up_snooze_length_ms";
+
+        /**
+         * Force heads up in all applications
+         * @hide
+         */
+        public static final String HEADS_UP_FORCE_ALL = "heads_up_force_all";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
