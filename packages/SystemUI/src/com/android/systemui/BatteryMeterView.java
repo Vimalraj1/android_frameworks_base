@@ -27,6 +27,7 @@ import android.content.res.Resources;
 import android.content.res.ThemeConfig;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.DashPathEffect;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -64,6 +65,7 @@ public class BatteryMeterView extends View implements DemoMode,
         BATTERY_METER_ICON_PORTRAIT,
         BATTERY_METER_ICON_LANDSCAPE,
         BATTERY_METER_CIRCLE,
+        BATTERY_METER_DOTTED_CIRCLE,
         BATTERY_METER_TEXT
     }
 
@@ -257,6 +259,11 @@ public class BatteryMeterView extends View implements DemoMode,
     protected BatteryMeterDrawable createBatteryMeterDrawable(BatteryMeterMode mode) {
         Resources res = getResources();
         switch (mode) {
+            case BATTERY_METER_DOTTED_CIRCLE:
+            case BATTERY_METER_CIRCLE:
+                return new CircleBatteryMeterDrawable(res);
+            case BATTERY_METER_ICON_LANDSCAPE:
+                return new NormalBatteryMeterDrawable(res, true);
             case BATTERY_METER_TEXT:
             case BATTERY_METER_GONE:
                 return null;
@@ -270,7 +277,11 @@ public class BatteryMeterView extends View implements DemoMode,
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int height = MeasureSpec.getSize(heightMeasureSpec);
 
-        if (mMeterMode == BatteryMeterMode.BATTERY_METER_TEXT) {
+        if (mMeterMode == BatteryMeterMode.BATTERY_METER_CIRCLE ||
+                mMeterMode == BatteryMeterMode.BATTERY_METER_DOTTED_CIRCLE) {
+            height += (CircleBatteryMeterDrawable.STROKE_WITH / 3);
+            width = height;
+        } else if (mMeterMode == BatteryMeterMode.BATTERY_METER_TEXT) {
             onSizeChanged(width, height, 0, 0); // Force a size changed event
         }
 
@@ -317,6 +328,9 @@ public class BatteryMeterView extends View implements DemoMode,
         switch (style) {
             case BatteryController.STYLE_CIRCLE:
                 meterMode = BatteryMeterMode.BATTERY_METER_CIRCLE;
+                break;
+            case BatteryController.STYLE_DOTTED_CIRCLE:
+                meterMode = BatteryMeterMode.BATTERY_METER_DOTTED_CIRCLE;
                 break;
             case BatteryController.STYLE_GONE:
                 meterMode = BatteryMeterMode.BATTERY_METER_GONE;
@@ -633,6 +647,11 @@ public class BatteryMeterView extends View implements DemoMode,
                 }
             }
 
+        private DashPathEffect mPathEffect;
+
+        private int     mAnimOffset;
+        private boolean mIsAnimating;   // stores charge-animation status to reliably
+        //remove callbacks
             int drawableResId = getBatteryDrawableResourceForMode(mode);
             mBatteryDrawable = (LayerDrawable) res.getDrawable(drawableResId);
             mFrameDrawable = mBatteryDrawable.findDrawableByLayerId(R.id.battery_frame);
@@ -696,6 +715,11 @@ public class BatteryMeterView extends View implements DemoMode,
                 // draw the warning text
                 canvas.drawText(mWarningString, mTextX, mTextY, mWarningTextPaint);
             }
+            mPathEffect = new DashPathEffect(new float[]{3,2},0);
+
+            mBoltPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mBoltPaint.setColor(res.getColor(R.color.batterymeter_bolt_color));
+            mBoltPoints = loadBoltPoints(res);
         }
 
         /**
@@ -822,6 +846,37 @@ public class BatteryMeterView extends View implements DemoMode,
                     Canvas c = new Canvas(bolt);
                     c.drawColor(-1, PorterDuff.Mode.CLEAR);
                     boltDrawable.draw(c);
+
+            if (mMeterMode == BatteryMeterMode.BATTERY_METER_DOTTED_CIRCLE) {
+                paint.setPathEffect(mPathEffect);
+            } else {
+                paint.setPathEffect(null);
+            }
+
+            // draw thin gray ring first
+            canvas.drawArc(drawRect, 270, 360, false, mBackPaint);
+            if (level != 0) {
+                // draw colored arc representing charge level
+                canvas.drawArc(drawRect, 270 + mAnimOffset, 3.6f * level, false, paint);
+            }
+            // if chosen by options, draw percentage text in the middle
+            // always skip percentage when 100, so layout doesnt break
+            if (unknownStatus) {
+                mTextPaint.setColor(paint.getColor());
+                canvas.drawText("?", textX, mTextY, mTextPaint);
+
+            } else if (tracker.plugged) {
+                canvas.drawPath(mBoltPath, mBoltPaint);
+            } else {
+                if (level > mCriticalLevel
+                        && (mShowPercent && !(tracker.level == 100 && !SHOW_100_PERCENT))) {
+                    // draw the percentage text
+                    String pctText = String.valueOf(SINGLE_DIGIT_PERCENT ? (level/10) : level);
+                    mTextPaint.setColor(paint.getColor());
+                    canvas.drawText(pctText, textX, mTextY, mTextPaint);
+                } else if (level <= mCriticalLevel) {
+                    // draw the warning text
+                    canvas.drawText(mWarningString, textX, mTextY, mWarningTextPaint);
                 }
             } else {
                 bolt = ((BitmapDrawable) boltDrawable).getBitmap();
