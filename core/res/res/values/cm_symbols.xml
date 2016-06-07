@@ -145,4 +145,5 @@
     <java-symbol type="string" name="global_action_screenrecord" />
     <!-- Screen record shortcut -->
     <java-symbol type="bool" name="config_enableScreenrecordChord" />
-</resources>
+    <!-- Usb drive persistent notification -->
+    <java-symbol type="bool" name="config_persistUsbDriveNotification" />
