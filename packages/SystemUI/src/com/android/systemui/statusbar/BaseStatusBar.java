@@ -2353,6 +2353,27 @@ public abstract class BaseStatusBar extends SystemUI implements
         }
     }
 
+/**
+     * Returns a context with the given theme applied or the original context if we fail to get a
+     * themed context.
+     */
+    private Context maybeGetThemedContext(Context context, String themePkg) {
+        Context themedContext;
+        try {
+            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(
+                    context.getPackageName(), 0);
+            themedContext = context.createApplicationContext(ai, themePkg,
+                    0);
+        } catch (PackageManager.NameNotFoundException e) {
+            themedContext = null;
+        }
+        if (themedContext == null) {
+            themedContext = context;
+        }
+        return themedContext; 
+        }
+     }
+
     @ChaosLab(name="GestureAnywhere", classification=Classification.NEW_METHOD)
     protected void addGestureAnywhereView() {
         mGestureAnywhereView = (GestureAnywhereView)View.inflate(
@@ -2385,24 +2406,5 @@ public abstract class BaseStatusBar extends SystemUI implements
         lp.setTitle("GestureAnywhereView");
 
         return lp;
-
-    /**
-     * Returns a context with the given theme applied or the original context if we fail to get a
-     * themed context.
-     */
-    private Context maybeGetThemedContext(Context context, String themePkg) {
-        Context themedContext;
-        try {
-            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(
-                    context.getPackageName(), 0);
-            themedContext = context.createApplicationContext(ai, themePkg,
-                    0);
-        } catch (PackageManager.NameNotFoundException e) {
-            themedContext = null;
-        }
-        if (themedContext == null) {
-            themedContext = context;
-        }
-        return themedContext;
     }
 }
