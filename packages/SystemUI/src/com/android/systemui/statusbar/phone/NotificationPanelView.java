@@ -2791,7 +2791,6 @@ public class NotificationPanelView extends PanelView implements
                     Settings.System.DOUBLE_TAP_SLEEP_ANYWHERE), false, this, UserHandle.USER_ALL);
             }
         }
-    }
 
     @Override
     public boolean hasOverlappingRendering() {

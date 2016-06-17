@@ -2372,7 +2372,6 @@ public abstract class BaseStatusBar extends SystemUI implements
         }
         return themedContext; 
         }
-     }
 
     @ChaosLab(name="GestureAnywhere", classification=Classification.NEW_METHOD)
     protected void addGestureAnywhereView() {
