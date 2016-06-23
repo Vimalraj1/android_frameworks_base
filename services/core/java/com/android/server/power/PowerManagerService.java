@@ -3562,7 +3562,7 @@ public final class PowerManagerService extends SystemService
                 r.run();
             }
         }
-
+        
         TelephonyManager getTelephonyManager() {
             if (mTelephonyManager == null) {
                 mTelephonyManager = (TelephonyManager)mContext.getSystemService(
@@ -3570,7 +3570,6 @@ public final class PowerManagerService extends SystemService
             }
             return mTelephonyManager;
         }
-
         private void runPostProximityCheck(final Runnable r) {
             if (mSensorManager == null) {
                 r.run();
@@ -3928,10 +3927,10 @@ public final class PowerManagerService extends SystemService
                 else {
                     mBlockedUids.clear();
                 }
-            }
-            if(changed){
-                mDirty |= DIRTY_WAKE_LOCKS;
-                updatePowerStateLocked();
+                if(changed){
+                    mDirty |= DIRTY_WAKE_LOCKS;
+                    updatePowerStateLocked();
+                }
             }
         }
     }

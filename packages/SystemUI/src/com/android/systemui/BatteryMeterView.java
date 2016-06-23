@@ -26,7 +26,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.ThemeConfig;
 import android.content.res.TypedArray;
-import android.graphics.DashPathEffect;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -65,7 +64,6 @@ public class BatteryMeterView extends View implements DemoMode,
         BATTERY_METER_ICON_PORTRAIT,
         BATTERY_METER_ICON_LANDSCAPE,
         BATTERY_METER_CIRCLE,
-        BATTERY_METER_DOTTED_CIRCLE,
         BATTERY_METER_TEXT
     }
 
@@ -319,9 +317,6 @@ public class BatteryMeterView extends View implements DemoMode,
         switch (style) {
             case BatteryController.STYLE_CIRCLE:
                 meterMode = BatteryMeterMode.BATTERY_METER_CIRCLE;
-                break;
-            case BatteryController.STYLE_DOTTED_CIRCLE:
-                meterMode = BatteryMeterMode.BATTERY_METER_DOTTED_CIRCLE;
                 break;
             case BatteryController.STYLE_GONE:
                 meterMode = BatteryMeterMode.BATTERY_METER_GONE;
@@ -846,3 +841,4 @@ public class BatteryMeterView extends View implements DemoMode,
         }
     }
 }
+

@@ -84,8 +84,8 @@ import com.android.systemui.statusbar.stack.NotificationStackScrollLayout;
 import com.android.systemui.statusbar.stack.StackStateAnimator;
 
 import cyanogenmod.providers.CMSettings;
-import android.provider.Settings;
 import cyanogenmod.weather.util.WeatherUtils;
+import android.provider.Settings;
 
 
 import java.util.List;
@@ -2815,7 +2815,6 @@ public class NotificationPanelView extends PanelView implements
                     && wasKeyguardWeatherEnabled != mKeyguardWeatherEnabled) {
                 onWeatherChanged(mWeatherController.getWeatherInfo());
             }
-
         }
     }
 
