@@ -4745,11 +4745,10 @@ public class PackageManagerService extends IPackageManager.Stub {
         if (!mSystemReady || mOnlyCore) {
             return false;
         }
-        synchronized(mPackages) {
-            AppSuggestManager suggest = AppSuggestManager.getInstance(mContext);
-            return mResolverReplaced && (suggest.getService() != null) ?
-                    suggest.handles(intent) : false;
-        }
+
+        AppSuggestManager suggest = AppSuggestManager.getInstance(mContext);
+        return mResolverReplaced && (suggest.getService() != null) ?
+                suggest.handles(intent) : false;
     }
 
     @Override
@@ -6376,9 +6375,8 @@ public class PackageManagerService extends IPackageManager.Stub {
                 if (doTrim) {
                     if (!isFirstBoot()) {
                         try {
-                            ActivityManagerNative.getDefault().showBootMessage(
-                                    mContext.getResources().getString(
-                                            R.string.android_upgrading_fstrim), true);
+                            ActivityManagerNative.getDefault().updateBootProgress(
+                                    IActivityManager.BOOT_STAGE_FSTRIM, null, 0, 0, true);
                         } catch (RemoteException e) {
                         }
                     }
@@ -6504,22 +6502,11 @@ public class PackageManagerService extends IPackageManager.Stub {
         if (DEBUG_DEXOPT) {
             Log.i(TAG, "Optimizing app " + curr + " of " + total + ": " + pkg.packageName);
         }
-        if (!isFirstBoot()) {
-            try {
-                // give the packagename to the PhoneWindowManager
-                ApplicationInfo ai;
-                try {
-                    ai = mContext.getPackageManager().getApplicationInfo(pkg.packageName, 0);
-                } catch (Exception e) {
-                    ai = null;
-                }
-                mPolicy.setPackageName((String) (ai != null ? mContext.getPackageManager().getApplicationLabel(ai) : pkg.packageName));
-
-                ActivityManagerNative.getDefault().showBootMessage(
-                        mContext.getResources().getString(R.string.android_upgrading_apk,
-                                curr, total), true);
-            } catch (RemoteException e) {
-            }
+        try {
+            ActivityManagerNative.getDefault().updateBootProgress(
+                    IActivityManager.BOOT_STAGE_PREPARING_APPS,
+                    pkg.applicationInfo, curr, total, true);
+        } catch (RemoteException e) {
         }
         PackageParser.Package p = pkg;
         synchronized (mInstallLock) {
