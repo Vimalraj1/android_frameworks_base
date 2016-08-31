@@ -1177,11 +1177,6 @@ public interface WindowManagerPolicy {
     public void setPackageName(String pkgName);
 
     /**
-     * Show boot time message to the user.
-     */
-    public void showBootMessage(final CharSequence msg, final boolean always);
-
-    /**
      * Update UI for boot-up progress.
      */
     public void updateBootProgress(final int stage, final ApplicationInfo optimizedApp,
