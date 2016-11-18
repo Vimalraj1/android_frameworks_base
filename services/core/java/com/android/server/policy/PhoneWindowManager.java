@@ -22,8 +22,6 @@ import android.app.ActivityManagerInternal.SleepToken;
 import android.app.ActivityManagerNative;
 import android.app.AppOpsManager;
 import android.app.IUiModeManager;
-import android.app.KeyguardManager;
-import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.app.StatusBarManager;
 import android.app.UiModeManager;
@@ -37,6 +35,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.CompatibilityInfo;
@@ -137,6 +136,8 @@ import com.android.server.GestureLauncherService;
 import com.android.server.LocalServices;
 import com.android.server.policy.keyguard.KeyguardServiceDelegate;
 import com.android.server.policy.keyguard.KeyguardServiceDelegate.DrawnListener;
+
+import org.cyanogenmod.internal.BootDexoptDialog;
 
 import java.io.File;
 import java.io.FileReader;
@@ -497,7 +498,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // During wakeup by volume keys, we still need to capture subsequent events
     // until the key is released. This is required since the beep sound is produced
     // post keypressed.
-    boolean mVolumeWakeTriggered;
+    boolean mVolumeDownWakeTriggered;
+    boolean mVolumeUpWakeTriggered;
+    boolean mVolumeMuteWakeTriggered;
 
     int mPointerLocationMode = 0; // guarded by mLock
 
@@ -1812,13 +1815,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                                 mNavigationBarLeftInLandscape) {
                             requestTransientBars(mNavigationBar);
                         }
-                        boolean focusedWindowIsExternalKeyguard = false;
-                        if (mFocusedWindow != null) {
-                            focusedWindowIsExternalKeyguard = (mFocusedWindow.getAttrs().type
-                                    & WindowManager.LayoutParams.TYPE_KEYGUARD_PANEL) != 0;
-                        }
                         if (mShowKeyguardOnLeftSwipe && isKeyguardShowingOrOccluded()
-                                && focusedWindowIsExternalKeyguard) {
+                                && mKeyguardDelegate.isKeyguardPanelFocused()) {
                             // Show keyguard
                             mKeyguardDelegate.showKeyguard();
                         }
@@ -5154,7 +5152,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if ((attrs.privateFlags & PRIVATE_FLAG_FORCE_STATUS_BAR_VISIBLE_TRANSPARENT) != 0) {
                 mForceStatusBarTransparent = true;
             }
-        }
+        } else if (attrs.type == TYPE_KEYGUARD_PANEL) {
+            if (mKeyguardDelegate.isKeyguardPanelFocused()) {
+                attrs.flags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+                attrs.flags |= WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
+            } else {
+                attrs.flags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+                attrs.flags &= ~WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
+            }
+       }
 
         boolean appWindow = attrs.type >= FIRST_APPLICATION_WINDOW
                 && attrs.type < FIRST_SYSTEM_WINDOW;
@@ -5670,6 +5676,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     }
 
+<<<<<<< HEAD
     // Assume this is called from the Handler thread.
     private void takeScreenrecord() {
         synchronized (mScreenrecordLock) {
@@ -5717,6 +5724,35 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // the service.
                 mHandler.postDelayed(mScreenrecordTimeout, 31 * 60 * 1000);
             }
+=======
+    private void setVolumeWakeTriggered(final int keyCode, boolean triggered) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                mVolumeDownWakeTriggered = triggered;
+                break;
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                mVolumeUpWakeTriggered = triggered;
+                break;
+            case KeyEvent.KEYCODE_VOLUME_MUTE:
+                mVolumeMuteWakeTriggered = triggered;
+                break;
+            default:
+                Log.w(TAG, "setVolumeWakeTriggered: unexpected keyCode=" + keyCode);
+        }
+    }
+
+    private boolean getVolumeWakeTriggered(final int keyCode) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                return mVolumeDownWakeTriggered;
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                return mVolumeUpWakeTriggered;
+            case KeyEvent.KEYCODE_VOLUME_MUTE:
+                return mVolumeMuteWakeTriggered;
+            default:
+                Log.w(TAG, "getVolumeWakeTriggered: unexpected keyCode=" + keyCode);
+                return false;
+>>>>>>> 7a9c884f482fed0a105a61e61c4881dfd5657985
         }
     }
 
@@ -5815,11 +5851,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // Eat all down & up keys when using volume wake.
                 // This disables volume control, music control, and "beep" on key up.
                 if (isWakeKey && mVolumeWakeScreen) {
-                    mVolumeWakeTriggered = true;
+                    setVolumeWakeTriggered(keyCode, true);
                     break;
-                } else if (mVolumeWakeTriggered && !down) {
+                } else if (getVolumeWakeTriggered(keyCode) && !down) {
                     result &= ~ACTION_PASS_TO_USER;
-                    mVolumeWakeTriggered = false;
+                    setVolumeWakeTriggered(keyCode, false);
                     break;
                 }
 
@@ -7172,7 +7208,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         screenTurnedOn();
     }
 
-    ProgressDialog mBootMsgDialog = null;
+    BootDexoptDialog mBootMsgDialog = null;
 
     /**
      * name of package currently being dex optimized
@@ -7188,10 +7224,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     /** {@inheritDoc} */
     @Override
-    public void showBootMessage(final CharSequence msg, final boolean always) {
+    public void updateBootProgress(final int stage, final ApplicationInfo optimizedApp,
+            final int currentAppPos, final int totalAppCount) {
         mHandler.post(new Runnable() {
             @Override public void run() {
                 if (mBootMsgDialog == null) {
+<<<<<<< HEAD
                     int theme;
                     if (mContext.getPackageManager().hasSystemFeature(
                             PackageManager.FEATURE_WATCH)) {
@@ -7257,6 +7295,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 } else {
                     mBootMsgDialog.setMessage(msg);
                 }
+=======
+                    mBootMsgDialog = BootDexoptDialog.create(mContext);
+                }
+                mBootMsgDialog.setProgress(stage, optimizedApp, currentAppPos, totalAppCount);
+>>>>>>> 7a9c884f482fed0a105a61e61c4881dfd5657985
             }
         });
     }
