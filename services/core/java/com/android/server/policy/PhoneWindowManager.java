@@ -7230,6 +7230,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             @Override public void run() {
                 if (mBootMsgDialog == null) {
 <<<<<<< HEAD
+<<<<<<< HEAD
                     int theme;
                     if (mContext.getPackageManager().hasSystemFeature(
                             PackageManager.FEATURE_WATCH)) {
@@ -7300,6 +7301,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 }
                 mBootMsgDialog.setProgress(stage, optimizedApp, currentAppPos, totalAppCount);
 >>>>>>> 7a9c884f482fed0a105a61e61c4881dfd5657985
+=======
+                    mBootMsgDialog = BootDexoptDialog.create(mContext);
+                }
+                mBootMsgDialog.setProgress(stage, optimizedApp, currentAppPos, totalAppCount);
+>>>>>>> efa6bcc518638a6772f243a80593d590fd474271
             }
         });
     }

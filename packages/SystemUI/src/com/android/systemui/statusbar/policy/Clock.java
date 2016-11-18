@@ -76,6 +76,8 @@ public class Clock extends TextView implements DemoMode {
     protected int mClockDateDisplay = CLOCK_DATE_DISPLAY_GONE;
     protected int mClockDateStyle = CLOCK_DATE_STYLE_REGULAR;
 
+    protected int mclockColor;
+
     private SettingsObserver mSettingsObserver;
 
     protected class SettingsObserver extends ContentObserver {
@@ -185,6 +187,7 @@ public class Clock extends TextView implements DemoMode {
         if (mDemoMode || mCalendar == null) return;
         mCalendar.setTimeInMillis(System.currentTimeMillis());
         setText(getSmallTime());
+        setTextColor(mclockColor);
     }
 
     private final CharSequence getSmallTime() {
@@ -307,17 +310,17 @@ public class Clock extends TextView implements DemoMode {
         mClockDateStyle = Settings.System.getIntForUser(resolver,
                 Settings.System.STATUS_BAR_DATE_STYLE, CLOCK_DATE_STYLE_REGULAR,
                 UserHandle.USER_CURRENT);
-        int defaultColor = mContext.getResources().getColor(R.color.status_bar_clock_color);
-        int clockColor = Settings.System.getIntForUser(resolver,
+        int defaultColor = getResources().getColor(R.color.status_bar_clock_color);
+        mclockColor = Settings.System.getIntForUser(resolver,
                 Settings.System.STATUSBAR_CLOCK_COLOR, defaultColor,
                 UserHandle.USER_CURRENT);
-        if (clockColor == Integer.MIN_VALUE) {
+        if (mclockColor == Integer.MIN_VALUE) {
             // flag to reset the color
-            clockColor = defaultColor;
+            mclockColor = defaultColor;
         }
-
-        setTextColor(clockColor);
-        updateClock();
+        if (mAttached) {
+            updateClock();
+        }
 
     }
 

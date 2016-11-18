@@ -3718,32 +3718,18 @@ public final class Settings {
          public static final String PROXIMITY_AUTO_SPEAKER = "proximity_auto_speaker";
         
           /**
-             * Time delay to activate speaker after proximity sensor triggered
-             * @hide
-             */
-            public static final String PROXIMITY_AUTO_SPEAKER_DELAY = "proximity_auto_speaker_delay";
-        
-             /**
-              * Whether the proximity sensor will adjust call to speaker,
-              * only while in call (not while ringing on outgoing call)
-             * @hide
-             */
-             public static final String PROXIMITY_AUTO_SPEAKER_INCALL_ONLY =
-                   "proximity_auto_speaker_incall_only";
-
-        /*
-         * Enable double tap gesture anywhere on the lock screen put device to sleep
+         * Time delay to activate speaker after proximity sensor triggered
          * @hide
          */
-        public static final String DOUBLE_TAP_SLEEP_LOCK_SCREEN = "double_tap_sleep_lock_screen";
-
-        /**
-         * Enable double tap gesture anywhere on the lock screen put device to sleep
+        public static final String PROXIMITY_AUTO_SPEAKER_DELAY = "proximity_auto_speaker_delay";
+    
+         /**
+          * Whether the proximity sensor will adjust call to speaker,
+          * only while in call (not while ringing on outgoing call)
          * @hide
          */
-        public static final String DOUBLE_TAP_SLEEP_ANYWHERE = "double_tap_sleep_anywhere";
-
-
+         public static final String PROXIMITY_AUTO_SPEAKER_INCALL_ONLY =
+               "proximity_auto_speaker_incall_only";
 
         /**
          * Snooze time for heads up
@@ -3765,6 +3751,17 @@ public final class Settings {
          */
         public static final String THREE_FINGER_GESTURE = "three_finger_gesture";
 
+        /*
+         * Enable double tap gesture anywhere on the lock screen put device to sleep
+         * @hide
+         */
+        public static final String DOUBLE_TAP_SLEEP_LOCK_SCREEN = "double_tap_sleep_lock_screen";   
+
+        /**
+         * Enable double tap gesture anywhere on the lock screen put device to sleep
+         * @hide
+         */
+        public static final String DOUBLE_TAP_SLEEP_ANYWHERE = "double_tap_sleep_anywhere";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
