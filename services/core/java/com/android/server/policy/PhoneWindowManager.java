@@ -5676,55 +5676,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     }
 
-<<<<<<< HEAD
-    // Assume this is called from the Handler thread.
-    private void takeScreenrecord() {
-        synchronized (mScreenrecordLock) {
-            if (mScreenrecordConnection != null) {
-                return;
-            }
-            ComponentName cn = new ComponentName("com.android.systemui",
-                    "com.android.systemui.omni.screenrecord.TakeScreenrecordService");
-            Intent intent = new Intent();
-            intent.setComponent(cn);
-            ServiceConnection conn = new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
-                    synchronized (mScreenrecordLock) {
-                        Messenger messenger = new Messenger(service);
-                        Message msg = Message.obtain(null, 1);
-                        final ServiceConnection myConn = this;
-                        Handler h = new Handler(mHandler.getLooper()) {
-                            @Override
-                            public void handleMessage(Message msg) {
-                                synchronized (mScreenrecordLock) {
-                                    if (mScreenrecordConnection == myConn) {
-                                        mContext.unbindService(mScreenrecordConnection);
-                                        mScreenrecordConnection = null;
-                                        mHandler.removeCallbacks(mScreenrecordTimeout);
-                                    }
-                                }
-                            }
-                        };
-                        msg.replyTo = new Messenger(h);
-                        msg.arg1 = msg.arg2 = 0;
-                        try {
-                            messenger.send(msg);
-                        } catch (RemoteException e) {
-                        }
-                    }
-                }
-                @Override
-               public void onServiceDisconnected(ComponentName name) {}
-            };
-            if (mContext.bindServiceAsUser(
-                    intent, conn, Context.BIND_AUTO_CREATE, UserHandle.CURRENT)) {
-                mScreenrecordConnection = conn;
-                // Screenrecord max duration is 30 minutes. Allow 31 minutes before killing
-                // the service.
-                mHandler.postDelayed(mScreenrecordTimeout, 31 * 60 * 1000);
-            }
-=======
     private void setVolumeWakeTriggered(final int keyCode, boolean triggered) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_DOWN:
@@ -5752,7 +5703,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             default:
                 Log.w(TAG, "getVolumeWakeTriggered: unexpected keyCode=" + keyCode);
                 return false;
->>>>>>> 7a9c884f482fed0a105a61e61c4881dfd5657985
         }
     }
 
@@ -7229,8 +7179,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mHandler.post(new Runnable() {
             @Override public void run() {
                 if (mBootMsgDialog == null) {
-<<<<<<< HEAD
-<<<<<<< HEAD
                     int theme;
                     if (mContext.getPackageManager().hasSystemFeature(
                             PackageManager.FEATURE_WATCH)) {
@@ -7296,16 +7244,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 } else {
                     mBootMsgDialog.setMessage(msg);
                 }
-=======
                     mBootMsgDialog = BootDexoptDialog.create(mContext);
                 }
                 mBootMsgDialog.setProgress(stage, optimizedApp, currentAppPos, totalAppCount);
->>>>>>> 7a9c884f482fed0a105a61e61c4881dfd5657985
-=======
-                    mBootMsgDialog = BootDexoptDialog.create(mContext);
-                }
-                mBootMsgDialog.setProgress(stage, optimizedApp, currentAppPos, totalAppCount);
->>>>>>> efa6bcc518638a6772f243a80593d590fd474271
             }
         });
     }
